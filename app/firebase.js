@@ -1,5 +1,4 @@
 var admin = require('firebase-admin')
-const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
 const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
 
 admin.initializeApp({
@@ -9,4 +8,4 @@ admin.initializeApp({
 
 const db = getFirestore()
 
-module.exports = db
+module.exports = {db, admin}

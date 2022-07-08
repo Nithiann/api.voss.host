@@ -1,4 +1,5 @@
 const fs = require('fs')
+const bcrypt = require('bcrypt')
 const db = require('../firebase')
 
 exports.CSV_Reader = function (req, res) {
@@ -17,7 +18,27 @@ exports.CSV_Reader = function (req, res) {
                 contactRef.doc().set({
                     contact
                 })
+                res.send("DONE") 
         }
     })
-    res.send("DONE") 
+    
+}
+
+exports.hash = function (req, res, next) {
+    const salt = 10;
+    const { password } = req.body
+
+    try { 
+        bcrypt.genSalt(salt, (err, generatedSalt) => {
+            req.salt = generatedSalt
+
+            bcrypt.hash(password, generatedSalt, (err, hash) => {
+                req.hash = hash
+                next()
+            })
+        })
+    } catch (e) {
+        if (e) 
+            res.status(500).json({ message: e.toString() })
+    }
 }
