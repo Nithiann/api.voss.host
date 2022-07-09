@@ -34,6 +34,7 @@ exports.GET = (req, res) => {
         }).catch(err => console.log(err));
     } catch (err) {
         console.error(err, 'an error has occured' + err.toString())
+        res.status(500).json({success: false, message: err.message})
     }
 }
 
@@ -43,7 +44,7 @@ exports.GETbyMail = (req, res, next) => {
         req.uid = users[0].uid
         next()  
     })
-    .catch(err => console.log(err));
+    .catch(err => res.status(500).json({success: false, message: err.message}));
 }
 
 exports.POST = (req, res) => {
@@ -57,14 +58,22 @@ exports.POST = (req, res) => {
             passwordHash: req.hash.toString(),
             phoneNumber: phone
         })
-        .then(result => res.json(result))
-        .catch(err => console.log(err))
+        .then(result => res.status(200).json({success: true, message: result}))
+        .catch(err => res.status(500).json({success: false, message: err.message}))
     } catch (e) {
         console.error(e)
     }
 }
 
-exports.PUT = (req, res) => {}
+exports.PUT = (req, res) => {
+    const {email, password, firstName, lastName, phone} = req.body
+    const id = req.params.id
+
+    admin.auth()
+    .updateUser(id, {email: email, password: password, displayName: firstName + " " + lastName, phoneNumber: phone})
+    .then(result => res.status(200).json({success: true, message: result}))
+    .catch(err => res.status(500).json({success: false, message: err.message}))
+}
 
 exports.DELETE = (req, res) => {
     const id = req.params.id
@@ -72,8 +81,8 @@ exports.DELETE = (req, res) => {
     try {
         console.log(id)
         admin.auth().deleteUser(id)
-        .then(result => res.json({message: "user deleted"}))
-        .catch(err => console.log(err))
+        .then(result => res.status(200).json({success:true, message: result}))
+        .catch(err => res.status(500).json({success: false, message: err.message}))
     } catch (e) {
         console.error(e)
     }
